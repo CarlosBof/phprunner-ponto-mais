@@ -1,2 +1,2 @@
-USER=
-PASS=
+PM_USER=
+PM_PASS=
