@@ -1,6 +1,7 @@
 .settings
 .buildpath
 .project
+.vscode
 process.log
 *.swp
 config/.env
