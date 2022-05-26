@@ -1,0 +1,9 @@
+.settings
+.buildpath
+.project
+process.log
+*.swp
+config/.env
+vendor/
+log.txt
+composer.phar

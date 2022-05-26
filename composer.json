@@ -1,0 +1,33 @@
+{
+	"name" : "smartconcilia/diario-robo-conciliacao-bancaria",
+	"description" : "Utilizado para execucao dos Robos de retirada do extrato de conciliacao bancaria",
+	"autoload" : {
+		"psr-4" : {
+			"Token\\" : "src/"
+		}
+	},
+	"autoload-dev" : {
+		"prs-4" : {
+			"Token\\" : "tests/"
+		}
+	},
+	"repositories" : [{
+			"type" : "vcs",
+			"url" : "git@gitlab.token.local:token/edinet/edinet_shared/logger.git"
+		}
+	],
+	"require" : {
+		"token/logger" : "1.0.15",
+		"php-webdriver/webdriver": "^1.12",
+		"vlucas/phpdotenv": "^5.4"
+	},
+	"scripts": {
+        "test": [
+            "phpunit"
+        ]
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8",
+        "phpunit/phpunit-selenium": ">=1.2"
+    }
+}
