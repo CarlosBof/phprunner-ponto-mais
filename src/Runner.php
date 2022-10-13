@@ -10,6 +10,9 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Facebook\WebDriver\WebDriverWait;
+use Joli\JoliNotif\Notification;
+use Joli\JoliNotif\NotifierFactory;
 use Token\Logger\Logger;
 
 class Runner {
@@ -28,58 +31,51 @@ class Runner {
             $isSuccess = true;
             $counterTry++;
 
+            try {
             $driver = ChromeDriver::start();
             $driver->get('https://app.pontomais.com.br/');
             sleep(5);
+            } catch(\Exception $e) {
+                
+                Logger::get()->logMsg(__DIR__ . '/../config/pontomais.fw.png');
+
+                $notification =
+                    (new Notification())
+                    ->setIcon(__DIR__ . '/../config/pontomais.fw.png')
+                    ->setTitle('Falha com a versão do ChromeDriver')
+                    ->setBody('Versão do chromedriver desatualizada (' . $e->getMessage() . ')');
+
+                $notifier = NotifierFactory::create();
+                $notifier->send($notification);
+
+                throw new \Exception($e->getMessage());
+            }
             
-            $loginInput = $driver->findElement(WebDriverBy::XPath("//*[@title='Login*']"));
+            $loginInput = $driver->findElement(WebDriverBy::XPath("//*[@placeholder='Nome de usuário / cpf / e-mail']"));
             $loginInput->sendKeys($_ENV["PM_USER"]);
             
-            $passwordInput = $driver->findElement(WebDriverBy::XPath("//*[@title='Sua senha*']"));
+            $passwordInput = $driver->findElement(WebDriverBy::XPath("//*[@type='password']"));
             $passwordInput->sendKeys($_ENV["PM_PASS"]);
             
             Logger::get()->logMsg("Ponto Mais - Realizando o Login");
-            $buttonLogin = $driver->findElement(WebDriverBy::XPath("//*[@type='submit']"));
+            $buttonLogin = $driver->findElement(WebDriverBy::XPath("//button[contains(@class,'pm-button') and contains(@class,'pm-primary')]/span/span[contains(text(),'Entrar')]"));
             $buttonLogin->click();
-            sleep(20);
+            sleep(5);
 
             Logger::get()->logMsg("Ponto Mais - Navegando para bater o ponto");
             $driver->navigate()->to("https://app2.pontomais.com.br/registrar-ponto");
-            sleep(10);
-
-            try {
-                Logger::get()->logMsg("Ponto Mais - Selecionando o endereco");
-                $buttonEndereco = $driver->findElement(WebDriverBy::XPath("//a[contains(text(),'Utilizar localização do meu último registro')]"));
-                $buttonEndereco->click();
-                sleep(10);
-            } catch (ElementNotInteractableException $e) {
-                Logger::get()->logMsg("Ponto Mais - Endereco ja selecionado");
-            }
-
-            Logger::get()->logMsg("Ponto Mais - Batendo o Ponto");
-            $buttonPonto = $driver->findElement(WebDriverBy::XPath("//button[contains(@class,'pm-button') and contains(@class,'pm-primary')]/span[contains(text(),'Bater ponto')]"));
-            $buttonPonto->click();
-            sleep(25);
-
-            /*exit;
-
-            
-            $buttomLogin = $driver->findElement(WebDriverBy::XPath("//button[contains(text(),'Bater ponto')]"));
-            $buttomLogin->click();
             sleep(5);
+            
+            $lButtonPonto = $driver->findElements(WebDriverBy::XPath("//button[contains(@class,'pm-button') and contains(@class,'pm-primary')]"));
+            Logger::get()->logMsg("Ponto Mais - Total de elementos(" . count($lButtonPonto) . ")");
 
-            $buttomLogin = $driver->findElement(WebDriverBy::XPath("//button[contains(@class, 'close')]"));
-            $buttomLogin->click();
-            sleep(10);
-
-            $menuUser = $driver->findElement(WebDriverBy::XPath("//a[@title='Usuário']"));
-            $menuUser->click();
-            sleep(1);
-
-            Logger::get()->logMsg("Ponto Mais - Saindo da aplicacao");
-            $buttomLogout = $driver->findElement(WebDriverBy::XPath("//a[contains(text(),'Sair')]"));
-            $buttomLogout->click();
-            sleep(1);*/
+            foreach($lButtonPonto as $buttonPonto) {
+                if($buttonPonto->isDisplayed()) {
+                    Logger::get()->logMsg("Ponto Mais - Batendo o Ponto");        
+                    $buttonPonto->click();
+                }
+            }
+            sleep(25);
             
             $driver->quit();
 

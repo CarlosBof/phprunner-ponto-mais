@@ -19,7 +19,8 @@
 	"require" : {
 		"token/logger" : "1.0.15",
 		"php-webdriver/webdriver": "^1.12",
-		"vlucas/phpdotenv": "^5.4"
+		"vlucas/phpdotenv": "^5.4",
+		"jolicode/jolinotif": "^2.4"
 	},
 	"scripts": {
         "test": [
